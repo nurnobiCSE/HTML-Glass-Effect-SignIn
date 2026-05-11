@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GlassEffect Login Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a0a00;
+      overflow: hidden;
+    }
+
+    /* ── Scene wrapper ── */
+    .scene {
+      position: relative;
+      width: 480px;
+      height: 320px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    }
+
+    /* ── Sky / ground gradient ── */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        #f4a233 0%,
+        #f6b84b 28%,
+        #f7c96a 48%,
+        #e8985a 65%,
+        #c96b30 80%,
+        #8b4513 100%
+      );
+    }
+
+    /* ── Clouds ── */
+    .clouds {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 45%;
+      pointer-events: none;
+    }
+    .cloud {
+      position: absolute;
+      background: rgba(255,220,150,.55);
+      border-radius: 50px;
+      filter: blur(6px);
+    }
+    .cloud1  { width:90px;  height:22px; top:18%; left:4%;  }
+    .cloud2  { width:60px;  height:14px; top:12%; left:18%; }
+    .cloud3  { width:110px; height:24px; top:22%; right:5%; }
+    .cloud4  { width:70px;  height:16px; top:10%; right:20%;}
+    .cloud5  { width:50px;  height:12px; top:30%; left:40%; }
+
+    /* ── Ground strip ── */
+    .ground {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 22%;
+      background: linear-gradient(180deg, #6b3a10 0%, #4a2408 100%);
+      border-top: 3px solid #8b4a15;
+    }
+    .ground-grass {
+      position: absolute;
+      top: -8px; left: 0; right: 0;
+      height: 16px;
+      background: linear-gradient(180deg, #5a8a2a 0%, #3d6b1a 100%);
+      border-radius: 50% 50% 0 0 / 8px;
+    }
+
+    /* ── Road ── */
+    .road {
+      position: absolute;
+      bottom: 20%;
+      left: 0; right: 0;
+      height: 14px;
+      background: #7a5530;
+      border-top: 2px solid #9b6940;
+      border-bottom: 2px solid #5a3a18;
+    }
+    .road-line {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      height: 2px; background: rgba(255,200,100,.4);
+      width: 30px;
+    }
+
+    /* ── Trees ── */
+    .trees {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* SVG tree helper drawn inline */
+    .tree-left, .tree-right {
+      position: absolute;
+      bottom: 18%;
+    }
+    .tree-left  { left: -10px;  }
+    .tree-right { right: -10px; }
+
+    /* ── Falling leaves ── */
+    .leaf {
+      position: absolute;
+      top: -30px;
+      font-size: 14px;
+      opacity: .85;
+      animation: fall linear infinite;
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(0)   rotate(0deg)   translateX(0);   opacity:.85; }
+      25%  { transform: translateY(80px) rotate(90deg)  translateX(15px); }
+      50%  { transform: translateY(160px) rotate(180deg) translateX(-10px); }
+      75%  { transform: translateY(240px) rotate(270deg) translateX(18px); }
+      100% { transform: translateY(340px) rotate(360deg) translateX(0);   opacity:0; }
+    }
+
+    /* ── Cyclist ── */
+    .cyclist-wrap {
+      position: absolute;
+      bottom: calc(20% + 6px);
+      animation: ride 7s linear infinite;
+      z-index: 5;
+    }
+    @keyframes ride {
+      0%   { left: -80px; }
+      100% { left: 110%;  }
+    }
+    .cyclist-svg { width: 64px; height: 52px; }
+
+    /* ── Wheel spin ── */
+    .wheel { animation: spin 0.45s linear infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Glass card ── */
+    .glass-card {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 210px;
+      background: rgba(255,255,255,.20);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 14px;
+      padding: 20px 22px 16px;
+      z-index: 20;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    .card-title {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: #2c1a08;
+      margin-bottom: 14px;
+      letter-spacing: .5px;
+    }
+
+    .input-wrap { position: relative; margin-bottom: 10px; }
+    .input-wrap input {
+      width: 100%;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      background: rgba(255,255,255,.75);
+      border: 1.5px solid rgba(255,255,255,.6);
+      border-radius: 6px;
+      outline: none;
+      color: #3a2010;
+      transition: border-color .25s, background .25s;
+    }
+    .input-wrap input::placeholder { color: #9c7a5a; font-size: 11.5px; }
+    .input-wrap input:focus {
+      background: rgba(255,255,255,.92);
+      border-color: #d4813a;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 9px;
+      margin-top: 4px;
+      background: linear-gradient(135deg, #5a2d0c, #8b4513);
+      color: #f5e0c0;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 12px rgba(90,45,12,.45);
+    }
+    .btn-login:hover  { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(90,45,12,.55); }
+    .btn-login:active { transform: translateY(0); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .card-footer a {
+      font-size: 10px;
+      color: #4a2808;
+      text-decoration: none;
+      opacity: .75;
+      transition: opacity .2s;
+    }
+    .card-footer a:hover { opacity: 1; text-decoration: underline; }
+
+    /* ── Animated background gradient shimmer ── */
+    @keyframes skyShift {
+      0%,100% { filter: brightness(1); }
+      50%      { filter: brightness(1.07); }
+    }
+    .bg { animation: skyShift 6s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+
+<div class="scene">
+
+  <!-- Sky background -->
+  <div class="bg"></div>
+
+  <!-- Clouds -->
+  <div class="clouds">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+    <div class="cloud cloud4"></div>
+    <div class="cloud cloud5"></div>
+  </div>
+
+  <!-- LEFT TREE (SVG) -->
+  <div class="tree-left">
+    <svg width="90" height="210" viewBox="0 0 90 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Trunk -->
+      <rect x="37" y="120" width="16" height="90" rx="4" fill="#5a3010"/>
+      <rect x="39" y="120" width="6" height="90" rx="3" fill="#7a4520"/>
+      <!-- Branch left -->
+      <line x1="45" y1="145" x2="18" y2="120" stroke="#5a3010" stroke-width="5" stroke-linecap="round"/>
+      <!-- Branch right -->
+      <line x1="45" y1="138" x2="68" y2="112" stroke="#5a3010" stroke-width="4" stroke-linecap="round"/>
+      <!-- Foliage layers -->
+      <ellipse cx="45" cy="80"  rx="42" ry="38" fill="#c04010"/>
+      <ellipse cx="25" cy="95"  rx="30" ry="26" fill="#d05018"/>
+      <ellipse cx="65" cy="90"  rx="28" ry="24" fill="#b83808"/>
+      <ellipse cx="45" cy="55"  rx="35" ry="30" fill="#d86020"/>
+      <ellipse cx="28" cy="68"  rx="22" ry="20" fill="#e07830"/>
+      <ellipse cx="62" cy="62"  rx="24" ry="21" fill="#c84818"/>
+      <ellipse cx="45" cy="38"  rx="28" ry="24" fill="#e07028"/>
+      <!-- Highlight -->
+      <ellipse cx="38" cy="50"  rx="14" ry="12" fill="rgba(255,180,60,.25)"/>
+    </svg>
+  </div>
+
+  <!-- RIGHT TREE (SVG) -->
+  <div class="tree-right">
+    <svg width="90" height="230" viewBox="0 0 90 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Trunk -->
+      <rect x="37" y="140" width="16" height="90" rx="4" fill="#5a3010"/>
+      <rect x="39" y="140" width="6" height="90" rx="3" fill="#7a4520"/>
+      <!-- Branch left -->
+      <line x1="45" y1="165" x2="20" y2="138" stroke="#5a3010" stroke-width="5" stroke-linecap="round"/>
+      <!-- Branch right -->
+      <line x1="45" y1="158" x2="70" y2="130" stroke="#5a3010" stroke-width="4" stroke-linecap="round"/>
+      <!-- Foliage layers -->
+      <ellipse cx="45" cy="95"  rx="44" ry="40" fill="#a83208"/>
+      <ellipse cx="22" cy="110" rx="30" ry="28" fill="#c04018"/>
+      <ellipse cx="68" cy="108" rx="28" ry="26" fill="#b03010"/>
+      <ellipse cx="45" cy="68"  rx="38" ry="32" fill="#cc5020"/>
+      <ellipse cx="24" cy="82"  rx="24" ry="22" fill="#d86528"/>
+      <ellipse cx="66" cy="78"  rx="26" ry="22" fill="#be4012"/>
+      <ellipse cx="45" cy="46"  rx="30" ry="26" fill="#d86020"/>
+      <!-- Highlight -->
+      <ellipse cx="38" cy="58"  rx="15" ry="13" fill="rgba(255,180,60,.22)"/>
+    </svg>
+  </div>
+
+  <!-- Ground -->
+  <div class="ground">
+    <div class="ground-grass"></div>
+  </div>
+
+  <!-- Road -->
+  <div class="road">
+    <div class="road-line" style="left:10%"></div>
+    <div class="road-line" style="left:30%"></div>
+    <div class="road-line" style="left:50%"></div>
+    <div class="road-line" style="left:70%"></div>
+    <div class="road-line" style="left:90%"></div>
+  </div>
+
+  <!-- Cyclist -->
+  <div class="cyclist-wrap">
+    <svg class="cyclist-svg" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- REAR WHEEL -->
+      <g transform="translate(12,36)">
+        <circle class="wheel" cx="0" cy="0" r="12" stroke="#5a3010" stroke-width="2.5" fill="none"/>
+        <circle cx="0" cy="0" r="3" fill="#5a3010"/>
+        <line class="wheel" x1="0" y1="-12" x2="0"  y2="12"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="-12" y1="0" x2="12" y2="0"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="-8.5" y1="-8.5" x2="8.5" y2="8.5"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="8.5"  y1="-8.5" x2="-8.5" y2="8.5" stroke="#5a3010" stroke-width="1.5"/>
+      </g>
+      <!-- FRONT WHEEL -->
+      <g transform="translate(50,36)">
+        <circle class="wheel" cx="0" cy="0" r="12" stroke="#5a3010" stroke-width="2.5" fill="none"/>
+        <circle cx="0" cy="0" r="3" fill="#5a3010"/>
+        <line class="wheel" x1="0" y1="-12" x2="0"  y2="12"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="-12" y1="0" x2="12" y2="0"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="-8.5" y1="-8.5" x2="8.5" y2="8.5"  stroke="#5a3010" stroke-width="1.5"/>
+        <line class="wheel" x1="8.5"  y1="-8.5" x2="-8.5" y2="8.5" stroke="#5a3010" stroke-width="1.5"/>
+      </g>
+      <!-- FRAME -->
+      <!-- seat tube -->
+      <line x1="18" y1="36" x2="26" y2="16" stroke="#7a3a10" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- down tube -->
+      <line x1="18" y1="36" x2="38" y2="20" stroke="#7a3a10" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- top tube -->
+      <line x1="26" y1="16" x2="38" y2="20" stroke="#7a3a10" stroke-width="2" stroke-linecap="round"/>
+      <!-- chain stay -->
+      <line x1="12" y1="36" x2="26" y2="30" stroke="#7a3a10" stroke-width="2" stroke-linecap="round"/>
+      <!-- seat stay -->
+      <line x1="12" y1="36" x2="26" y2="16" stroke="#7a3a10" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- fork -->
+      <line x1="38" y1="20" x2="50" y2="36" stroke="#7a3a10" stroke-width="2" stroke-linecap="round"/>
+      <!-- handlebar -->
+      <line x1="38" y1="18" x2="44" y2="14" stroke="#5a3010" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="44" y1="14" x2="44" y2="18" stroke="#5a3010" stroke-width="2" stroke-linecap="round"/>
+      <!-- seat -->
+      <ellipse cx="27" cy="13" rx="6" ry="2.5" fill="#4a2008"/>
+      <!-- RIDER -->
+      <!-- torso -->
+      <line x1="27" y1="13" x2="36" y2="8"  stroke="#e07830" stroke-width="4" stroke-linecap="round"/>
+      <!-- head -->
+      <circle cx="37" cy="5" r="5" fill="#f5c490"/>
+      <!-- helmet -->
+      <ellipse cx="37" cy="2.5" rx="5.5" ry="4" fill="#c04010"/>
+      <!-- arm -->
+      <line x1="35" y1="10" x2="43" y2="15" stroke="#e07830" stroke-width="3" stroke-linecap="round"/>
+      <!-- leg pedal -->
+      <line x1="27" y1="14" x2="22" y2="28" stroke="#c05020" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="27" y1="14" x2="32" y2="28" stroke="#c05020" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Falling leaves -->
+  <div id="leaves"></div>
+
+  <!-- Glass Card -->
+  <div class="glass-card">
+    <h2 class="card-title">Sign In</h2>
+
+    <div class="input-wrap">
+      <input type="text" placeholder="Username" autocomplete="off"/>
+    </div>
+    <div class="input-wrap">
+      <input type="password" placeholder="Password" autocomplete="off"/>
+    </div>
+
+    <button class="btn-login">Login</button>
+
+    <div class="card-footer">
+      <a href="#">Forget Password</a>
+      <a href="#">Signup</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const leafEmojis = ['🍂','🍁','🍃','🍂','🍁'];
+  const container  = document.getElementById('leaves');
+  const sceneW     = 480;
+
+  function spawnLeaf() {
+    const el = document.createElement('div');
+    el.className = 'leaf';
+    el.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+    el.style.left     = Math.random() * 100 + '%';
+    el.style.fontSize = (10 + Math.random() * 10) + 'px';
+    el.style.animationDuration = (3 + Math.random() * 4) + 's';
+    el.style.animationDelay   = (Math.random() * 2) + 's';
+    el.style.opacity = 0.6 + Math.random() * 0.35;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 9000);
+  }
+
+  // Spawn leaves continuously
+  setInterval(spawnLeaf, 380);
+  // Initial burst
+  for (let i = 0; i < 8; i++) {
+    setTimeout(spawnLeaf, i * 120);
+  }
+</script>
+
+</body>
+</html>
